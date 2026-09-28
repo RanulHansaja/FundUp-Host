@@ -1,0 +1,6 @@
+<?php
+define('PAYHERE_MERCHANT_ID', '1236886');
+define('PAYHERE_MERCHANT_SECRET', 'MjQ4Njc2OTI0MDI2NTQ1NjE2NzkyMjI3Njg1Mjc5NDEzMTIxODcxMw==');
+define('PAYHERE_CURRENCY', 'LKR');
+define('PAYHERE_SANDBOX', true);
+?>

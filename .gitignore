@@ -1,0 +1,7 @@
+# Ignore uploaded test files and temporary assets
+backend/uploads/**
+!backend/uploads/
+!backend/uploads/**/
+!backend/uploads/**/.gitkeep
+backend/vendor/
+backend/mail_debug.log
