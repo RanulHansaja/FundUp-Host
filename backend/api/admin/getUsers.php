@@ -41,7 +41,7 @@ $result = $conn->query($sql);
 
 if ($result) {
     $users = [];
-    $baseUrl = 'http://localhost/FundUp_Host/backend/';
+    $baseUrl = 'http://localhost/FundUp-Host/backend/';
 
     while ($row = $result->fetch_assoc()) {
         $roleStr = strtoupper($row['role']);
