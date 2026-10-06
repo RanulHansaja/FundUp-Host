@@ -71,7 +71,7 @@ try {
     
     // Add full path to profile photo
     if (!empty($organizer['profilePhoto']) && !filter_var($organizer['profilePhoto'], FILTER_VALIDATE_URL)) {
-        $organizer['profilePhoto'] = 'http://localhost/FundUp_Host/backend/' . ltrim($organizer['profilePhoto'], '/');
+        $organizer['profilePhoto'] = 'http://localhost/FundUp-Host/backend/' . ltrim($organizer['profilePhoto'], '/');
     }
 
     echo json_encode([

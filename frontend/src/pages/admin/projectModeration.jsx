@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/FundUp_Host/backend/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/FundUp-Host/backend/api';
 const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
 export default function ProjectModeration() {

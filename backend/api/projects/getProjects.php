@@ -2,7 +2,7 @@
 include_once __DIR__ . "/../../config/cors.php";
 header("Content-Type: application/json");
 
-include __DIR__ . "/../../config/db.php";
+require_once __DIR__ . "/../../config/db.php";
 
 // Auto-mark active projects whose end date has passed as COMPLETED
 $conn->query("UPDATE Projects SET status = 'COMPLETED' WHERE status = 'ACTIVE' AND endDate < CURDATE()");
