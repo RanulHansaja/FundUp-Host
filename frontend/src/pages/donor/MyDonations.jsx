@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
 import { getMyDonations, getCompletedDonationsBreakdown, getPendingDonations, getDonationDetails, downloadReceipt } from '../../services/authService';
 
+const ModalWrapper = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h3 className="font-extrabold text-lg text-slate-800">{title}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-1 rounded-lg transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto flex-1 bg-white">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function MyDonations() {
   const [data, setData] = useState({
     stats: {
@@ -204,27 +223,6 @@ function MyDonations() {
     }
   };
 
-  // --- Modal Components ---
-
-  const ModalWrapper = ({ isOpen, onClose, title, children }) => {
-    if (!isOpen) return null;
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h3 className="font-extrabold text-lg text-slate-800">{title}</h3>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-1 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-          <div className="p-6 overflow-y-auto flex-1 bg-white">
-            {children}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-8 mx-auto p-6 md:p-10 md:pt-4 max-w-7xl w-full relative">
       {/* Header Section */}
@@ -261,7 +259,10 @@ function MyDonations() {
             <div className="text-4xl font-extrabold text-blue-600 mb-1">
               {formatCurrency(data.stats.totalDonated)}
             </div>
-            <div className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
+            <div 
+              onClick={handleOpenCompletedBreakdown}
+              className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer flex items-center gap-1 w-max"
+            >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
               </svg>

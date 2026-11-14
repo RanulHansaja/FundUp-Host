@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from "./component/sidebar";
 import { getOrganizerApprovals } from '../../services/authService'
 import ReviewModal from './component/reviewModal'
 
-function organizerApprovals() {
+function timeAgo(dateStr) {
+    const d = new Date(dateStr)
+    const now = new Date()
+    const sec = Math.floor((now - d) / 1000)
+    if (sec < 60) return `Submitted ${sec}s ago`
+    const min = Math.floor(sec / 60)
+    if (min < 60) return `Submitted ${min}m ago`
+    const hr = Math.floor(min / 60)
+    if (hr < 24) return `Submitted ${hr}h ago`
+    const days = Math.floor(hr / 24)
+    return `Submitted ${days}d ago`
+}
+
+function OrganizerApprovals() {
     const [rows, setRows] = useState([])
     const [loading, setLoading] = useState(true)
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,7 +43,7 @@ function organizerApprovals() {
                             organizerID: item.organizerID,
                             userID: item.userID,
                             initials,
-                            name: item.fullName,
+                            name,
                             submitted,
                             institution: item.universityName || item.organizationName,
                             dept: '',
@@ -50,19 +63,6 @@ function organizerApprovals() {
 
         return () => { mounted = false }
     }, [])
-
-    function timeAgo(dateStr) {
-        const d = new Date(dateStr)
-        const now = new Date()
-        const sec = Math.floor((now - d) / 1000)
-        if (sec < 60) return `Submitted ${sec}s ago`
-        const min = Math.floor(sec / 60)
-        if (min < 60) return `Submitted ${min}m ago`
-        const hr = Math.floor(min / 60)
-        if (hr < 24) return `Submitted ${hr}h ago`
-        const days = Math.floor(hr / 24)
-        return `Submitted ${days}d ago`
-    }
 
     return (
         <div className="flex bg-[#f8fafc] min-h-screen text-slate-800 antialiased">
@@ -163,4 +163,4 @@ function organizerApprovals() {
     );
 }
 
-export default organizerApprovals
+export default OrganizerApprovals

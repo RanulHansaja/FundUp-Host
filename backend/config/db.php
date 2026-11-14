@@ -1,10 +1,10 @@
 <?php
 
-$host = "localhost";
-$username = "root";
-$password = "";
-$dbname = "fundup_db";
-$port = 3306; // Change this port configuration as needed for your environment
+$host = getenv('DB_HOST') ?: "localhost";
+$username = getenv('DB_USER') ?: "root";
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : "";
+$dbname = getenv('DB_NAME') ?: "fundup_db";
+$port = (int)(getenv('DB_PORT') ?: 3306);
 
 try {
     $conn = new mysqli($host, $username, $password, $dbname, $port);

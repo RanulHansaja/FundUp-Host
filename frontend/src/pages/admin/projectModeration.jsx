@@ -271,27 +271,9 @@ export default function ProjectModeration() {
   };
 
   const filteredProjects = projects.filter(project => {
-      let statusMatch = false;
-      if (selectedStatus === 'All Statuses') {
-          statusMatch = true;
-      } else {
-          statusMatch = project.status === selectedStatus;
-      }
-
-      let categoryMatch = false;
-      if (selectedCategory === 'All Categories') {
-          categoryMatch = true;
-      } else {
-          categoryMatch = project.category === selectedCategory;
-      }
-
-      let searchMatch = false;
-      if (!searchQuery.trim()) {
-          searchMatch = true;
-      } else {
-          searchMatch = project.name.toLowerCase().includes(searchQuery.toLowerCase());
-      }
-
+      const statusMatch = selectedStatus === 'All Statuses' || project.status === selectedStatus;
+      const categoryMatch = selectedCategory === 'All Categories' || project.category === selectedCategory;
+      const searchMatch = !searchQuery.trim() || project.name.toLowerCase().includes(searchQuery.toLowerCase());
       return statusMatch && categoryMatch && searchMatch;
   });
 

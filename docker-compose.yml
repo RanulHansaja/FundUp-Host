@@ -1,0 +1,70 @@
+services:
+  # 1. Database service (MySQL 8.0)
+  db:
+    image: mysql:8.0
+    container_name: fundup_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fundup_db
+      MYSQL_USER: fundup_user
+      MYSQL_PASSWORD: fundup_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - fundup_db_data:/var/lib/mysql
+      # Automatically runs your SQL dump when the container starts the first time:
+      - ./backend/database/fundup_db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # 2. Backend service (PHP 8.2 + Apache)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fundup_backend
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      DB_HOST: db
+      DB_USER: fundup_user
+      DB_PASS: fundup_password
+      DB_NAME: fundup_db
+      DB_PORT: 3306
+      FRONTEND_URL: http://localhost:5173
+    volumes:
+      # Live sync backend code for easy editing:
+      - ./backend:/var/www/html
+      # Persistent storage for uploads:
+      - ./backend/uploads:/var/www/html/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 3. Frontend service (React 19 + Vite)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fundup_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api
+      VITE_BACKEND_URL: http://localhost:8000
+    volumes:
+      # Live sync frontend code for instant browser reloading:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+# Persistent storage volume for MySQL database
+volumes:
+  fundup_db_data:

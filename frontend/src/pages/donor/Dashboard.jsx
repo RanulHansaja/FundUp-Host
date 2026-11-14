@@ -215,13 +215,13 @@ function Dashboard() {
   };
 
   const totalDonationsAmount = dashboardData?.stats?.totalDonations || 0;
-  let activeBadge = dashboardData?.donor?.badgeLevel || 'NONE';
+  let activeBadge = 'NONE';
   if (totalDonationsAmount >= 500000) activeBadge = 'PLATINUM';
   else if (totalDonationsAmount >= 100000) activeBadge = 'GOLD';
   else if (totalDonationsAmount >= 50000) activeBadge = 'SILVER';
   else if (totalDonationsAmount >= 25000) activeBadge = 'BRONZE';
   else if (totalDonationsAmount >= 5000) activeBadge = 'STARTER';
-  else activeBadge = 'NONE';
+  else if (dashboardData?.donor?.badgeLevel) activeBadge = dashboardData.donor.badgeLevel;
 
   const badgeInfo = dashboardData ? getBadgeStyles(activeBadge) : { bg: '', text: '', glow: '' };
   const badgeDetailsInfo = dashboardData ? getBadgeDetails(activeBadge) : { title: '', desc: '', milestone: '' };

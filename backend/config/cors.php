@@ -8,13 +8,21 @@ $allowed_origins = [
     'http://localhost:5176',
 ];
 
+// If FRONTEND_URL is set in environment (e.g. from Docker or Azure), add it
+$env_frontend = getenv('FRONTEND_URL');
+if (!empty($env_frontend)) {
+    $allowed_origins[] = rtrim($env_frontend, '/');
+}
+
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if (in_array($origin, $allowed_origins)) {
+// Allow configured origins or any Vercel deployment (*.vercel.app)
+if (in_array($origin, $allowed_origins) || (preg_match('/^https:\/\/[a-z0-9-]+\.vercel\.app$/i', $origin))) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
-    // Default to the main frontend URL for safety if origin header is missing
-    header("Access-Control-Allow-Origin: http://localhost:5173");
+    // Default to FRONTEND_URL or localhost:5173 if origin header is missing
+    $default_origin = !empty($env_frontend) ? $env_frontend : "http://localhost:5173";
+    header("Access-Control-Allow-Origin: $default_origin");
 }
 
 header("Access-Control-Allow-Credentials: true");
