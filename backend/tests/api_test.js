@@ -25,28 +25,31 @@ async function runTests() {
   // 1. Health & Home Stats
   await test('[1/4] Public Stats API returns success and platform counters', async () => {
     const res = await fetch(`${BASE_URL}/api/public/getHomeStats.php`);
-    if (!res.ok) throw new Error(`Expected HTTP 200, got ${res.status}`);
-    const data = await res.json();
+    const rawText = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${rawText}`);
+    const data = JSON.parse(rawText);
     if (!data.success || typeof data.data?.universitiesSupported !== 'number') {
-      throw new Error(`Unexpected response payload: ${JSON.stringify(data)}`);
+      throw new Error(`Unexpected response payload: ${rawText}`);
     }
   });
 
   // 2. Projects List
   await test('[2/4] Projects API returns active projects array', async () => {
     const res = await fetch(`${BASE_URL}/api/projects/getProjects.php`);
-    if (!res.ok) throw new Error(`Expected HTTP 200, got ${res.status}`);
-    const data = await res.json();
+    const rawText = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${rawText}`);
+    const data = JSON.parse(rawText);
     if (!data.success || !Array.isArray(data.data)) {
-      throw new Error(`Expected data.data to be an array, got: ${JSON.stringify(data)}`);
+      throw new Error(`Expected data.data to be an array, got: ${rawText}`);
     }
   });
 
   // 3. Universities Lookup Table
   await test('[3/4] Universities Lookup API returns seeded university list', async () => {
     const res = await fetch(`${BASE_URL}/api/universities/getUniversities.php`);
-    if (!res.ok) throw new Error(`Expected HTTP 200, got ${res.status}`);
-    const data = await res.json();
+    const rawText = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${rawText}`);
+    const data = JSON.parse(rawText);
     if (!Array.isArray(data) || data.length === 0) {
       throw new Error(`Expected non-empty array of universities`);
     }
@@ -59,7 +62,13 @@ async function runTests() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'fake_test@fundup.com', password: 'wrongpassword' }),
     });
-    const data = await res.json();
+    const rawText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`Invalid JSON response: ${rawText}`);
+    }
     if (data.success === true) {
       throw new Error(`Security flaw: Backend accepted fake credentials!`);
     }
