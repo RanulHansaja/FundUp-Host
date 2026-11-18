@@ -1,6 +1,22 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "http://40.123.241.24:8000/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "http://40.123.241.24:8000/uploads/:path*"
+    },
+    {
+      "source": "/backend/uploads/:path*",
+      "destination": "http://40.123.241.24:8000/uploads/:path*"
+    },
+    {
+      "source": "/FundUp-Host/backend/uploads/:path*",
+      "destination": "http://40.123.241.24:8000/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

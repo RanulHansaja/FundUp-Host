@@ -17,7 +17,7 @@ axios.interceptors.response.use(
     }
 );
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const getUniversities = () => {
     return axios.get(`${BASE_URL}/universities/getUniversities.php`);
