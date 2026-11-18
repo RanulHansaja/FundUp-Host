@@ -65,6 +65,21 @@ services:
     depends_on:
       - backend
 
+  # 4. Database Management GUI (phpMyAdmin)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: fundup_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    depends_on:
+      db:
+        condition: service_healthy
+
 # Persistent storage volume for MySQL database
 volumes:
   fundup_db_data:
