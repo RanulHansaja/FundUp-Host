@@ -5,7 +5,8 @@
 function startSecureSession() {
     if (session_status() === PHP_SESSION_NONE) {
         // Enforce cookie secure parameters (HttpOnly, SameSite, and Secure if HTTPS)
-        $isSecure = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['SERVER_PORT'] == 443);
+        $isSecure = (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['SERVER_PORT'] == 443))
+                 || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
         
         // PHP 7.3+ configuration array
         session_set_cookie_params([

@@ -123,12 +123,13 @@ $verifiedProjects = $activeCampaigns;
 // 5. Fetch Supported Projects List for the current donor
 $activeProjectsList = [];
 $projectsQuery = "
-    SELECT DISTINCT p.projectID, p.title, p.description, p.category, p.targetAmount, p.collectedAmount, p.bannerImage, p.endDate, p.status, o.organizationName, o.universityName 
+    SELECT p.projectID, p.title, p.description, p.category, p.targetAmount, p.collectedAmount, p.bannerImage, p.endDate, p.status, o.organizationName, o.universityName 
     FROM Projects p
     JOIN Organizers o ON p.organizerID = o.organizerID
     JOIN Donations d ON p.projectID = d.projectID
     WHERE d.donorID = ? AND d.status = 'APPROVED'
-    ORDER BY d.donationDate DESC
+    GROUP BY p.projectID, p.title, p.description, p.category, p.targetAmount, p.collectedAmount, p.bannerImage, p.endDate, p.status, o.organizationName, o.universityName
+    ORDER BY MAX(d.donationDate) DESC
     LIMIT 4
 ";
 $stmtProjects = $conn->prepare($projectsQuery);
