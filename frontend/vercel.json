@@ -2,19 +2,19 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://deprive-average-halogen.ngrok-free.dev/api/:path*"
+      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://deprive-average-halogen.ngrok-free.dev/uploads/:path*"
+      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
     },
     {
       "source": "/backend/uploads/:path*",
-      "destination": "https://deprive-average-halogen.ngrok-free.dev/uploads/:path*"
+      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
     },
     {
       "source": "/FundUp-Host/backend/uploads/:path*",
-      "destination": "https://deprive-average-halogen.ngrok-free.dev/uploads/:path*"
+      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
     },
     {
       "source": "/(.*)",

@@ -7,9 +7,12 @@ $dbname = getenv('DB_NAME') ?: "fundup_db";
 $port = (int)(getenv('DB_PORT') ?: 3306);
 
 try {
-    $conn = new mysqli($host, $username, $password, $dbname, $port);
-    if ($conn->connect_error) {
-        throw new Exception($conn->connect_error);
+    $conn = mysqli_init();
+    $use_ssl = (getenv('DB_SSL') === 'true' || strpos($host, 'azure.com') !== false);
+    $flags = $use_ssl ? MYSQLI_CLIENT_SSL : 0;
+
+    if (!@mysqli_real_connect($conn, $host, $username, $password, $dbname, $port, NULL, $flags)) {
+        throw new Exception(mysqli_connect_error());
     }
 } catch (Throwable $e) {
     http_response_code(500);
