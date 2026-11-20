@@ -13,18 +13,23 @@ require_once __DIR__ . '/../vendor/autoload.php';
 function getMailerInstance() {
     $mail = new PHPMailer(true);
     
+    $smtpUser = getenv('SMTP_USER') ?: 'ranulhansaja414@gmail.com';
+    $smtpPass = getenv('SMTP_PASS') ?: '';
+    $smtpHost = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+    $smtpPort = (int)(getenv('SMTP_PORT') ?: 587);
+
     // Server settings
     $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
+    $mail->Host       = $smtpHost;
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'ranulhansaja414@gmail.com';
-    $mail->Password   = 'duqh asph azxf wygp';
+    $mail->Username   = $smtpUser;
+    $mail->Password   = $smtpPass;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+    $mail->Port       = $smtpPort;
     $mail->CharSet    = 'UTF-8';
     
     // Default From address
-    $mail->setFrom('ranulhansaja414@gmail.com', 'FundUp Team');
+    $mail->setFrom($smtpUser, 'FundUp Team');
     
     return $mail;
 }
