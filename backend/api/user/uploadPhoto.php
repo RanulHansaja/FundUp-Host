@@ -5,6 +5,7 @@ header("Content-Type: application/json");
 
 include __DIR__ . "/../../config/db.php";
 include_once __DIR__ . "/../../helpers/authMiddleware.php";
+include_once __DIR__ . "/../../helpers/uploadHelper.php";
 
 $sessionUser = requireAuth();
 $userID = $sessionUser['userID'];
@@ -34,18 +35,12 @@ if (!in_array($file['type'], $allowedMimeTypes)) {
     exit();
 }
 
-$uploadDir = __DIR__ . "/../../uploads/profiles/";
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
-
 $fileExt = pathinfo($file['name'], PATHINFO_EXTENSION);
 $fileName = "user_" . $userID . "_" . time() . "." . $fileExt;
-$filePath = $uploadDir . $fileName;
 
-if (move_uploaded_file($file['tmp_name'], $filePath)) {
-    $dbFilePath = "uploads/profiles/" . $fileName;
-    
+$dbFilePath = saveFileToStorage($file['tmp_name'], $fileName, 'profiles');
+
+if ($dbFilePath) {
     $stmt = $conn->prepare("UPDATE Users SET profilePhoto = ? WHERE userID = ?");
     $stmt->bind_param("si", $dbFilePath, $userID);
     
