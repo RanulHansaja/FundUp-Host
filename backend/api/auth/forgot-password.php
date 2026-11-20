@@ -60,7 +60,7 @@ if ($result->num_rows > 0) {
     // 5. Send password reset email (failsafe try-catch)
     try {
         sendPasswordResetEmail($email, $fullName, $resetLink);
-    } catch (Exception $mailEx) {
+    } catch (Throwable $mailEx) {
         error_log("Failed to send password reset email to $email: " . $mailEx->getMessage());
     }
 } else {

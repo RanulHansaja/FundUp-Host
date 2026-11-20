@@ -3,7 +3,9 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 /**
  * Creates and configures a reusable PHPMailer instance.
@@ -11,6 +13,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
  * @return PHPMailer
  */
 function getMailerInstance() {
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        throw new \Exception("PHPMailer library not found or vendor autoload missing");
+    }
     $mail = new PHPMailer(true);
     
     $smtpUser = getenv('SMTP_USER') ?: 'ranulhansaja414@gmail.com';

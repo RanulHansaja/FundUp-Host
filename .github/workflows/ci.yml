@@ -1,4 +1,4 @@
-name: FundUp CI Pipeline
+name: FundUp CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
+  # =========================================================================
+  # 1. CI JOB: Test and verify everything before allowing deployment
+  # =========================================================================
   test-and-verify:
+    name: Continuous Integration (Lint, Build & Full API Test Suites)
     runs-on: ubuntu-latest
 
     steps:
@@ -50,11 +54,12 @@ jobs:
           timeout 90s bash -c 'until curl -s http://localhost:8000/api/public/getHomeStats.php | grep -q "\"success\":true"; do echo "Waiting for backend..."; sleep 3; done'
           echo "Backend and Database are fully online and responding!"
 
-      - name: Run Backend Automated API Tests
+      # 5. Run All 88 Automated Test Cases Across All Backend Modules
+      - name: Run Full Backend Automated Test Suites (88 Tests)
         run: |
-          node backend/tests/api_test.js
+          node backend/tests/runner.js
 
-      # 5. Debug info if any test fails
+      # 6. Debug info if any test fails
       - name: Print Container Logs on Failure
         if: failure()
         run: |
@@ -63,8 +68,29 @@ jobs:
           echo "=================== Database Container Logs ==================="
           docker compose logs db
 
-      # 6. Clean up containers after testing
+      # 7. Clean up containers after testing
       - name: Stop Docker Containers
         if: always()
         run: |
           docker compose down -v
+
+  # =========================================================================
+  # 2. CD JOB: Gated Continuous Deployment to Azure App Service
+  #    STRICT RULE: Only executes IF test-and-verify succeeds 100% green!
+  # =========================================================================
+  deploy-backend:
+    name: Continuous Deployment to Azure App Service
+    needs: test-and-verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Verified Backend to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'fundup-backend'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './backend'

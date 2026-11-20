@@ -1,5 +1,5 @@
 <?php
-require_once "C:/xampp/htdocs/FundUp/backend/config/db.php";
+require_once __DIR__ . "/../../config/db.php";
 $query = "
 CREATE TABLE IF NOT EXISTS moderation_history (
     historyID INT AUTO_INCREMENT PRIMARY KEY,
