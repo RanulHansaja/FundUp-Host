@@ -6,15 +6,15 @@
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
+      "destination": "https://fundupstorage01.blob.core.windows.net/uploads/:path*"
     },
     {
       "source": "/backend/uploads/:path*",
-      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
+      "destination": "https://fundupstorage01.blob.core.windows.net/uploads/:path*"
     },
     {
       "source": "/FundUp-Host/backend/uploads/:path*",
-      "destination": "https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net/uploads/:path*"
+      "destination": "https://fundupstorage01.blob.core.windows.net/uploads/:path*"
     },
     {
       "source": "/(.*)",
