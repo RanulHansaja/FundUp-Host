@@ -39,7 +39,7 @@ const ProjectCard = ({ camp }) => {
     const tagLower = (tag || '').toLowerCase();
 
     if (catLower.includes('education') || tagLower.includes('infrastructure')) {
-      image = 'https://images.unsplash.com/photo-1498243691391-6c1d52d76abf?q=80&w=800&auto=format&fit=crop'; // Modern student learning space
+      image = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop'; // Modern student learning space
     } else if (catLower.includes('life') || tagLower.includes('student')) {
       image = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop'; // Group of student leaders
     } else if (catLower.includes('event') || tagLower.includes('program') || tagLower.includes('expo')) {
@@ -101,6 +101,10 @@ const ProjectCard = ({ camp }) => {
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop';
+            }}
           />
         </div>
 

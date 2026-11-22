@@ -34,6 +34,65 @@ const isValidDate = (value) => {
     && date.getDate() === day;
 };
 
+// ==================== Automatic Image Optimization ====================
+// Automatically compresses high-resolution camera/phone photos in the browser
+// to crisp, web-optimized ~300KB JPEGs, completely preventing HTTP 413 upload errors.
+const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
+  return new Promise((resolve) => {
+    if (!file || !file.type || !file.type.startsWith('image/')) {
+      resolve(file);
+      return;
+    }
+
+    if (file.size < 500 * 1024) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+            const compressedFile = new File([blob], cleanName, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 // ==================== Validation Logic ====================
 // Frontend validation ensuring inputs meet constraints before server requests
 const validateProject = ({ formData, coverImage, proposalPdf, galleryImages = [], galleryVideos = []}) => {
@@ -175,6 +234,24 @@ const CreateProject = () => {
     });
   };
 
+  // Handles automatic client-side compression for cover image
+  const handleCoverImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setCoverImage(null);
+      return;
+    }
+    const optimized = await compressImage(file);
+    setCoverImage(optimized);
+  };
+
+  // Handles automatic client-side compression for gallery images
+  const handleGalleryImagesChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    const optimizedList = await Promise.all(files.map((f) => compressImage(f)));
+    setGalleryImages(optimizedList);
+  };
+
   // Confirmation states, alerts, loading indicators, and success modal toggles
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -295,9 +372,15 @@ const CreateProject = () => {
       if (galleryVideosInputRef.current) galleryVideosInputRef.current.value = '';
       setIsConfirmed(false);
     } catch (error) {
+      let errorMsg = error.response?.data?.message;
+      if (!errorMsg && error.response?.status === 413) {
+        errorMsg = 'Uploaded files are too large (HTTP 413). Please select a compressed/smaller cover image and PDF (< 1MB).';
+      } else if (!errorMsg) {
+        errorMsg = 'Something went wrong while creating the project. Please verify all fields and try a smaller image.';
+      }
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || 'Something went wrong while creating the project.'
+        text: errorMsg
       });
     } finally {
       setIsSubmitting(false);
@@ -460,7 +543,7 @@ const CreateProject = () => {
                       ref={coverImageInputRef}
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
+                      onChange={handleCoverImageChange}
                        className="w-full max-w-full rounded-lg border border-slate-300 p-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="mt-3 text-sm text-slate-500">
@@ -524,7 +607,7 @@ const CreateProject = () => {
                     ref={galleryImagesInputRef}
                     accept="image/*"
                     multiple
-                    onChange={(e) => setGalleryImages(Array.from(e.target.files || []))}
+                    onChange={handleGalleryImagesChange}
                     className="w-full max-w-full rounded-lg border border-slate-300 p-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
                   />
                   <p className="mt-2 text-xs text-slate-500">

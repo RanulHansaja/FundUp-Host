@@ -203,7 +203,7 @@ function ProjectDetails() {
   if (!useDatabasePath && (!image || image.includes('placeholder') || image.includes('project'))) {
     const category = (project.category || '').toLowerCase();
     if (category.includes('education')) {
-      image = 'https://images.unsplash.com/photo-1498243691391-6c1d52d76abf?q=80&w=1200&auto=format&fit=crop';
+      image = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop';
     } else if (category.includes('life') || category.includes('student')) {
       image = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop';
     } else if (category.includes('research')) {
