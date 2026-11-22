@@ -196,7 +196,8 @@ function ProjectDetails() {
   let useDatabasePath = false;
   if (image && (image.startsWith('uploads/') || image.startsWith('/uploads/'))) {
     const cleanPath = image.startsWith('/') ? image.substring(1) : image;
-    image = `${import.meta.env.VITE_BACKEND_URL}/${cleanPath}`;
+    const backendUrl = (import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/$/, '');
+    image = `${backendUrl}/${cleanPath}`;
     useDatabasePath = true;
   }
 
