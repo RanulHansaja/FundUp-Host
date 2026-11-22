@@ -59,7 +59,7 @@ if (empty($fullName) || empty($email) || empty($password) || empty($confirmPassw
 if (!preg_match('/^[0-9]{10}$/', $phone)) {
     echo json_encode([
         "success" => false,
-        "message" => "invalide phone number"
+        "message" => "Invalid phone number"
     ]);
     exit();
 }

@@ -11,7 +11,6 @@ include_once __DIR__ . "/../../helpers/uploadHelper.php";
 $sessionUser = requireAuth(['ORGANIZER']);
 
 $requiredFields = [
-    'userID',
     'title',
     'category',
     'shortSummary',
@@ -19,7 +18,6 @@ $requiredFields = [
     'targetAmount',
     'startDate',
     'endDate',
-
 ];
 
 foreach ($requiredFields as $field) {
