@@ -1,11 +1,15 @@
 <?php
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/../libs/PHPMailer/src/PHPMailer.php')) {
+    require_once __DIR__ . '/../libs/PHPMailer/src/Exception.php';
+    require_once __DIR__ . '/../libs/PHPMailer/src/PHPMailer.php';
+    require_once __DIR__ . '/../libs/PHPMailer/src/SMTP.php';
 }
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 /**
  * Creates and configures a reusable PHPMailer instance.

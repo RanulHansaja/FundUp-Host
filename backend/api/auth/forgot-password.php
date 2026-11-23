@@ -47,14 +47,13 @@ if ($result->num_rows > 0) {
     $insertStmt->execute();
     $insertStmt->close();
 
-    // Determine the frontend base URL dynamically (matching config/cors.php origins or default to localhost:5173)
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? 'http://localhost:5173';
-    $allowed_origins = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://localhost:5174',
-    ];
-    $baseUrl = in_array($origin, $allowed_origins) ? $origin : 'http://localhost:5173';
+    // Determine the frontend base URL dynamically (supporting both live Vercel and local dev)
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (preg_match('/^https:\/\/[a-z0-9-]+\.vercel\.app$/i', $origin) || in_array($origin, ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174'])) {
+        $baseUrl = $origin;
+    } else {
+        $baseUrl = 'https://fund-up-host.vercel.app';
+    }
     $resetLink = "$baseUrl/reset-password?token=$token";
 
     // 5. Send password reset email (failsafe try-catch)
