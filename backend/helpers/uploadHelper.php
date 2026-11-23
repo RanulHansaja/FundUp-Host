@@ -124,7 +124,8 @@ function saveFileToStorage($tmpPath, $fileName, $subfolder = '') {
 
     // Try Azure Blob Storage first
     if (uploadToAzureBlob($tmpPath, $blobPath)) {
-        return "uploads/" . $blobPath;
+        $storageAccount = getenv('AZURE_STORAGE_ACCOUNT') ?: 'fundupstorage01';
+        return "https://{$storageAccount}.blob.core.windows.net/uploads/" . $blobPath;
     }
 
     // Local storage fallback
@@ -139,5 +140,24 @@ function saveFileToStorage($tmpPath, $fileName, $subfolder = '') {
     }
 
     return false;
+}
+
+/**
+ * Resolves any stored file path to its full publicly accessible URL.
+ * Transparently upgrades legacy 'uploads/...' relative paths to full Azure Blob Storage URLs.
+ *
+ * @param string|null $storedPath
+ * @return string|null
+ */
+function getFileUrl($storedPath) {
+    if (empty($storedPath)) {
+        return null;
+    }
+    if (preg_match('/^https?:\/\//i', $storedPath)) {
+        return $storedPath;
+    }
+    $storageAccount = getenv('AZURE_STORAGE_ACCOUNT') ?: 'fundupstorage01';
+    $cleanPath = ltrim($storedPath, '/');
+    return "https://{$storageAccount}.blob.core.windows.net/{$cleanPath}";
 }
 ?>

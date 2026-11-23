@@ -5,6 +5,7 @@ header("Content-Type: application/json");
 
 include __DIR__ . "/../../config/db.php";
 include_once __DIR__ . "/../../helpers/authMiddleware.php";
+include_once __DIR__ . "/../../helpers/uploadHelper.php";
 
 $sessionUser = requireAuth();
 
@@ -35,6 +36,8 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 $stmt->close();
+
+$user['profilePhoto'] = getFileUrl($user['profilePhoto']);
 
 $response = [
     "success" => true,

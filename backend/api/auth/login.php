@@ -5,6 +5,7 @@ header("Content-Type: application/json");
 
 include_once __DIR__ . "/../../config/db.php";
 include_once __DIR__ . "/../../helpers/sessionHelper.php";
+include_once __DIR__ . "/../../helpers/uploadHelper.php";
 
 startSecureSession();
 
@@ -162,7 +163,7 @@ echo json_encode([
     "email" => $email,
     "role" => $user["role"],
     "verificationStatus" => $verificationStatus,
-    "profilePhoto" => $user["profilePhoto"]
+    "profilePhoto" => getFileUrl($user["profilePhoto"])
 ]);
 
 ?>

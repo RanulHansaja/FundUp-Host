@@ -60,7 +60,8 @@ class StorageService {
 
         // 5. Upload to Azure Blob Storage if configured
         if (self::uploadToAzureBlob($file['tmp_name'], $blobPath)) {
-            return "uploads/" . $blobPath;
+            $storageAccount = getenv('AZURE_STORAGE_ACCOUNT') ?: 'fundupstorage01';
+            return "https://{$storageAccount}.blob.core.windows.net/uploads/" . $blobPath;
         }
 
         // 6. Graceful local storage fallback
