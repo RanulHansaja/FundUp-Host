@@ -26,6 +26,7 @@ const Sidebar = ({
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notificationsError, setNotificationsError] = useState(null);
+  const [imgError, setImgError] = useState(false);
   const [dynamicBadge, setDynamicBadge] = useState('Loading...');
   const isSidebarOpen = typeof sidebarOpen === 'boolean' ? sidebarOpen : internalSidebarOpen;
 
@@ -298,15 +299,18 @@ const Sidebar = ({
             </button>
             <div className="group relative">
               <div className="flex justify-center items-center bg-orange-100 shadow-sm border-2 border-blue-500 hover:border-blue-600 rounded-full w-16 h-16 overflow-hidden transition-colors duration-200 cursor-pointer shrink-0">
-                {sidebarUser.profilePhoto ? (
+                {sidebarUser.profilePhoto && !imgError ? (
                   <img
-                    src={`${import.meta.env.VITE_BACKEND_URL}/${sidebarUser.profilePhoto}`}
+                    src={sidebarUser.profilePhoto.startsWith('http')
+                      ? sidebarUser.profilePhoto
+                      : `${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/+$/, '')}/${sidebarUser.profilePhoto.replace(/^\/+/, '')}`}
                     alt="User avatar"
                     className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
                   />
                 ) : (
                   <div className="flex justify-center items-center bg-[#fca5a5] w-full h-full font-bold text-white text-2xl uppercase">
-                    {sidebarUser.name.substring(0, 2)}
+                    {(sidebarUser?.name || 'Donor').substring(0, 2)}
                   </div>
                 )}
               </div>

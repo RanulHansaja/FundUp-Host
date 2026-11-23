@@ -3,6 +3,7 @@ import { User, Camera, Trash2 } from 'lucide-react';
 import { getUserProfile, updateUserProfile, uploadProfilePhoto, deleteProfilePhoto } from '../../../../services/authService';
 import ConfirmModal from '../../../common/component/ConfirmModal';
 import { useAuth } from '../../../../context/AuthContext';
+import { compressImage } from '../../../../utils/imageCompressor';
 
 const AdminProfileSettingsCard = () => {
   const [profile, setProfile] = useState({
@@ -16,6 +17,7 @@ const AdminProfileSettingsCard = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const fileInputRef = useRef(null);
@@ -56,17 +58,19 @@ const AdminProfileSettingsCard = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('profilePhoto', file);
-
     setUploadingPhoto(true);
     setMessage({ text: '', type: '' });
 
     try {
+      const optimized = await compressImage(file, 800, 0.85);
+      const formData = new FormData();
+      formData.append('profilePhoto', optimized);
+
       const response = await uploadProfilePhoto(formData);
       if (response.data.success) {
         const photoUrl = response.data.profilePhoto + "?v=" + Date.now();
         setProfile(prev => ({ ...prev, profilePhoto: photoUrl }));
+        setImgError(false);
         updateProfilePhoto(photoUrl);
         setMessage({ text: 'Profile photo updated successfully!', type: 'success' });
       } else {
@@ -148,11 +152,18 @@ const AdminProfileSettingsCard = () => {
         <div className="flex flex-col sm:flex-row gap-8 mb-6">
           <div className="flex flex-col items-center gap-4">
             <div className="w-32 h-32 rounded-2xl bg-blue-100 border border-blue-200 overflow-hidden flex items-center justify-center relative">
-               {profile.profilePhoto ? (
-                 <img src={`${import.meta.env.VITE_BACKEND_URL}/${profile.profilePhoto}`} alt="Profile" className="w-full h-full object-cover" />
+               {profile.profilePhoto && !imgError ? (
+                 <img 
+                   src={profile.profilePhoto.startsWith('http')
+                     ? profile.profilePhoto
+                     : `${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/+$/, '')}/${profile.profilePhoto.replace(/^\/+/, '')}`} 
+                   alt="Profile" 
+                   className="w-full h-full object-cover" 
+                   onError={() => setImgError(true)}
+                 />
                ) : (
                  <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-4xl uppercase">
-                   {profile.fullName.substring(0, 2) || 'AD'}
+                   {(profile.fullName || 'AD').substring(0, 2)}
                  </div>
                )}
                {uploadingPhoto && (

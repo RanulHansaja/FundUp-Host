@@ -26,6 +26,7 @@ const Sidebar = ({
   // States to track mobile view menu open and logout overlay visibility
   const [internalSidebarOpen, setInternalSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const isSidebarOpen = typeof sidebarOpen === 'boolean' ? sidebarOpen : internalSidebarOpen;
 
   const setMenuOpen = (value) => {
@@ -291,11 +292,14 @@ const Sidebar = ({
 
             <div className="relative group">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-500 shadow-sm shrink-0 cursor-pointer hover:border-blue-600 transition-colors duration-200 bg-orange-100 flex items-center justify-center">
-                {currentUser?.profilePhoto ? (
+                {currentUser?.profilePhoto && !imgError ? (
                   <img
-                    src={`${import.meta.env.VITE_BACKEND_URL}/${currentUser.profilePhoto}`}
+                    src={currentUser.profilePhoto.startsWith('http')
+                      ? currentUser.profilePhoto
+                      : `${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/+$/, '')}/${currentUser.profilePhoto.replace(/^\/+/, '')}`}
                     alt="User avatar"
                     className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
                   />
                 ) : (
                   <div className="w-full h-full bg-[#fca5a5] flex items-center justify-center text-white font-bold text-2xl uppercase">

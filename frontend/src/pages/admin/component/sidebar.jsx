@@ -20,6 +20,7 @@ const Sidebar = ({
     const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
     const [notificationsLoading, setNotificationsLoading] = useState(false);
     const [notificationsError, setNotificationsError] = useState(null);
+    const [imgError, setImgError] = useState(false);
     const isSidebarOpen = typeof sidebarOpen === 'boolean' ? sidebarOpen : internalSidebarOpen;
 
     const setMenuOpen = (value) => {
@@ -36,6 +37,10 @@ const Sidebar = ({
         email: currentUser?.email || user.email,
         profilePhoto: currentUser?.profilePhoto || null
     };
+
+    useEffect(() => {
+        setImgError(false);
+    }, [sidebarUser.profilePhoto]);
 
     const menuItems = [
         {
@@ -257,15 +262,18 @@ const Sidebar = ({
 
                         <div className="group relative">
                             <div className="shadow-sm border-2 border-blue-500 hover:border-blue-600 rounded-full w-16 h-16 overflow-hidden transition-colors duration-200 cursor-pointer shrink-0 bg-orange-100 flex items-center justify-center">
-                                {sidebarUser.profilePhoto ? (
+                                {sidebarUser.profilePhoto && !imgError ? (
                                     <img
-                                        src={`${import.meta.env.VITE_BACKEND_URL}/${sidebarUser.profilePhoto}`}
+                                        src={sidebarUser.profilePhoto.startsWith('http') 
+                                            ? sidebarUser.profilePhoto 
+                                            : `${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/+$/, '')}/${sidebarUser.profilePhoto.replace(/^\/+/, '')}`}
                                         alt="User avatar"
                                         className="w-full h-full object-cover"
+                                        onError={() => setImgError(true)}
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-[#fca5a5] flex items-center justify-center text-white font-bold text-2xl uppercase">
-                                        {sidebarUser.name.substring(0, 2)}
+                                        {(sidebarUser?.name || 'Admin').substring(0, 2)}
                                     </div>
                                 )}
                             </div>

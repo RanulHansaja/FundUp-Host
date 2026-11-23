@@ -6,6 +6,7 @@ import logoImg from '../../../assets/images/FundUp logo-CRF5i8gW.png';
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [navImgError, setNavImgError] = useState(false);
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -82,11 +83,14 @@ const Navbar = () => {
                                 className="flex items-center gap-2.5 bg-slate-50 hover:bg-blue-50/80 border border-slate-200/80 hover:border-blue-200 rounded-xl px-3 py-1.5 transition-all group"
                             >
                                 <div className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                                    {currentUser.profilePhoto ? (
+                                    {currentUser.profilePhoto && !navImgError ? (
                                         <img 
-                                            src={`${import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net'}/${currentUser.profilePhoto.replace(/^\//, '')}`} 
+                                            src={currentUser.profilePhoto.startsWith('http')
+                                                ? currentUser.profilePhoto
+                                                : `${import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net'}/${currentUser.profilePhoto.replace(/^\//, '')}`} 
                                             alt="Profile" 
                                             className="w-full h-full object-cover" 
+                                            onError={() => setNavImgError(true)}
                                         />
                                     ) : (
                                         <span>{getInitials(currentUser.fullName)}</span>
