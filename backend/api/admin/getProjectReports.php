@@ -44,7 +44,7 @@ try {
         FROM Projects p
         JOIN Reports r ON p.projectID = r.projectID
         LEFT JOIN Organizers o ON p.organizerID = o.organizerID
-        GROUP BY p.projectID
+        GROUP BY p.projectID, o.universityName, o.organizationName
         ORDER BY latestReportDate DESC
     ";
     

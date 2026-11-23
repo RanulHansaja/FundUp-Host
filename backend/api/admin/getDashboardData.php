@@ -37,12 +37,12 @@ try {
     // Get Weekly Activity Data (last 7 days)
     $weekly_query = "SELECT 
                         DATE(u.createdAt) as day,
-                        DAYNAME(u.createdAt) as dayName,
+                        DAYNAME(DATE(u.createdAt)) as dayName,
                         SUM(CASE WHEN u.role = 'ORGANIZER' THEN 1 ELSE 0 END) as organizers,
                         SUM(CASE WHEN u.role = 'DONOR' THEN 1 ELSE 0 END) as donors
                      FROM Users u
                      WHERE u.createdAt >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-                     GROUP BY DATE(u.createdAt)
+                     GROUP BY DATE(u.createdAt), DAYNAME(DATE(u.createdAt))
                      ORDER BY DATE(u.createdAt) ASC";
     
     $weekly_result = $conn->query($weekly_query);
