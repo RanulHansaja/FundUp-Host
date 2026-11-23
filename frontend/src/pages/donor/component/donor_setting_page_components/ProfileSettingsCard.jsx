@@ -17,10 +17,15 @@ const ProfileSettingsCard = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const fileInputRef = useRef(null);
   const { updateProfilePhoto, updateProfileDetails, currentUser } = useAuth();
+
+  useEffect(() => {
+    setImgError(false);
+  }, [profile.profilePhoto]);
 
   useEffect(() => {
     // Replace with real Auth Context in production
@@ -154,11 +159,18 @@ const ProfileSettingsCard = () => {
         <div className="flex flex-col sm:flex-row gap-8 mb-6">
           <div className="flex flex-col items-center gap-4">
             <div className="w-32 h-32 rounded-2xl bg-orange-100 border border-orange-200 overflow-hidden flex items-center justify-center relative">
-               {profile.profilePhoto ? (
-                 <img src={`${import.meta.env.VITE_BACKEND_URL}/${profile.profilePhoto}`} alt="Profile" className="w-full h-full object-cover" />
+               {profile.profilePhoto && !imgError ? (
+                 <img 
+                   src={profile.profilePhoto.startsWith('http')
+                     ? profile.profilePhoto
+                     : `${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/+$/, '')}/${profile.profilePhoto.replace(/^\/+/, '')}`} 
+                   alt="Profile" 
+                   className="w-full h-full object-cover" 
+                   onError={() => setImgError(true)}
+                 />
                ) : (
                  <div className="w-full h-full bg-[#fca5a5] flex items-center justify-center text-white font-bold text-4xl uppercase">
-                   {profile.fullName.substring(0, 2) || 'JV'}
+                   {(profile.fullName || 'User').substring(0, 2)}
                  </div>
                )}
                {uploadingPhoto && (

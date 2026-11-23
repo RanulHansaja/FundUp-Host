@@ -10,6 +10,11 @@ for conf in /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default 
         else
             sed -i '/server {/a \    client_max_body_size 25M;' "$conf" 2>/dev/null || true
         fi
+
+        # Azure Blob Storage fallback redirect for uploads
+        if ! grep -q "location /uploads/" "$conf"; then
+            sed -i '/server {/a \    location /uploads/ { try_files $uri @blob_storage; }\n    location @blob_storage { return 302 https://fundupstorage01.blob.core.windows.net$request_uri; }' "$conf" 2>/dev/null || true
+        fi
     fi
 done
 
