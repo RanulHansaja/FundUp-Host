@@ -291,6 +291,10 @@ const OrganizerDashboard = () => {
                                   src={projectImage}
                                   alt={project.title}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop';
+                                  }}
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs font-bold">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPayhereParams, createDonation } from '../../../services/authService';
+import { compressImage } from '../../../utils/imageCompressor';
 
 export default function DonateModal({ isOpen, onClose, project, onDonationSuccess }) {
   const [amount, setAmount] = useState('1000');
@@ -73,20 +74,17 @@ export default function DonateModal({ isOpen, onClose, project, onDonationSucces
   const remainingNeeded = Math.max(0, targetGoal - currentRaised);
   const isExceedingGoal = targetGoal > 0 && finalAmount > remainingNeeded;
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError("File size exceeds 10MB limit.");
-        return;
-      }
-      setSlipFile(file);
       setError(null);
+      const optimized = await compressImage(file, 1400, 0.85);
+      setSlipFile(optimized);
       const reader = new FileReader();
       reader.onloadend = () => {
         setSlipPreview(reader.result);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(optimized);
     }
   };
 
@@ -162,7 +160,7 @@ export default function DonateModal({ isOpen, onClose, project, onDonationSucces
             merchant_id: params.merchant_id,
             return_url: window.location.origin + "/donor-dashboard?payment=success",
             cancel_url: window.location.origin + "/projects/" + (project.projectID || project.id) + "?payment=cancel",
-            notify_url: "http://localhost:80/FundUp/backend/api/donor/payhereNotify.php", // Dummy callback url
+            notify_url: `${import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net'}/api/donor/payhereNotify.php`,
             order_id: params.order_id,
             items: params.projectTitle,
             amount: params.amount.toFixed(2),
@@ -570,7 +568,7 @@ export default function DonateModal({ isOpen, onClose, project, onDonationSucces
                             )}
                           </div>
                           <p className="font-medium text-[10px] text-slate-400 leading-tight">
-                            {slipFile ? `Size: ${(slipFile.size / 1024).toFixed(1)} KB` : "Supports JPEG or PNG format (max 10MB)."}
+                            {slipFile ? `Optimized Size: ${(slipFile.size / 1024).toFixed(1)} KB` : "Supports JPEG or PNG (automatically optimized for fast upload)."}
                           </p>
                         </div>
                       </div>

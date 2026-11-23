@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUniversities, registerOrganizer } from "../../../services/authService";
+import { compressImage } from "../../../utils/imageCompressor";
 
 export default function OrganizerForm() {
     const [representativeName, setRepresentativeName] = useState("");
@@ -20,6 +21,26 @@ export default function OrganizerForm() {
 
     const navigate = useNavigate();
     const [universities, setUniversities] = useState([]);
+
+    const handleApprovalLetterChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.size > 2.5 * 1024 * 1024) {
+            setMessage(`Approval letter is ${(file.size / (1024 * 1024)).toFixed(1)}MB. Please choose a file under 2.5MB.`);
+        } else {
+            setMessage('');
+        }
+        setApprovalLetter(file || null);
+    };
+
+    const handleStudentIdChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const compressed = await compressImage(file, 1400, 0.85);
+            setStudentIdImage(compressed);
+        } else {
+            setStudentIdImage(null);
+        }
+    };
 
     useEffect(() => {
         const fetchUniversities = async () => {
@@ -212,8 +233,8 @@ export default function OrganizerForm() {
                 </label>
                 <input
                     type="file"
-                    accept=".pdf"
-                    onChange={(e) => setApprovalLetter(e.target.files[0])}
+                    accept=".pdf,application/pdf"
+                    onChange={handleApprovalLetterChange}
                     className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:transition-all border border-slate-200 rounded-xl p-2 bg-white focus:outline-none cursor-pointer"
                 />
             </div>
@@ -226,7 +247,7 @@ export default function OrganizerForm() {
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setStudentIdImage(e.target.files[0])}
+                    onChange={handleStudentIdChange}
                     className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:transition-all border border-slate-200 rounded-xl p-2 bg-white focus:outline-none cursor-pointer"
                 />
             </div>

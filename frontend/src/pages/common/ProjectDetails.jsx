@@ -258,7 +258,15 @@ function ProjectDetails() {
           {/* 1. Large Banner Header */}
           <div className="relative bg-white shadow-[0_4px_25px_rgba(0,0,0,0.02)] mb-8 border border-slate-100 rounded-[2rem] overflow-hidden">
             <div className="relative h-[250px] md:h-[400px]">
-              <img src={image} alt={project.title} className="w-full h-full object-cover" />
+              <img 
+                src={image} 
+                alt={project.title} 
+                className="w-full h-full object-cover" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop';
+                }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
 
               <div className="bottom-6 md:bottom-10 left-6 md:left-10 z-10 absolute text-white">
@@ -398,7 +406,7 @@ function ProjectDetails() {
                         <p className="text-[10px] text-slate-400">Read the full verified project breakdown</p>
                       </div>
                       <a
-                        href={`${import.meta.env.VITE_BACKEND_URL}/${project.proposalPdfPath.startsWith('/') ? project.proposalPdfPath.substring(1) : project.proposalPdfPath}`}
+                        href={`${(import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net').replace(/\/$/, '')}/${project.proposalPdfPath.startsWith('/') ? project.proposalPdfPath.substring(1) : project.proposalPdfPath}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 bg-white hover:bg-slate-50 px-5 py-2.5 border border-blue-200 rounded-xl font-bold text-blue-600 text-xs transition-all duration-150"

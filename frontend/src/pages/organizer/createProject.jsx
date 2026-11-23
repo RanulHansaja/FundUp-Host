@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Sidebar from './component/sidebar';
 import { createProject } from '../../services/authService';
+import { compressImage } from '../../utils/imageCompressor';
 
 // Note: Cancel will be implemented as an in-place Reset inside the component
 
@@ -32,65 +33,6 @@ const isValidDate = (value) => {
   return date.getFullYear() === year
     && date.getMonth() === month - 1
     && date.getDate() === day;
-};
-
-// ==================== Automatic Image Optimization ====================
-// Automatically compresses high-resolution camera/phone photos in the browser
-// to crisp, web-optimized ~300KB JPEGs, completely preventing HTTP 413 upload errors.
-const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
-  return new Promise((resolve) => {
-    if (!file || !file.type || !file.type.startsWith('image/')) {
-      resolve(file);
-      return;
-    }
-
-    if (file.size < 500 * 1024) {
-      resolve(file);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result;
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              resolve(file);
-              return;
-            }
-            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-            const compressedFile = new File([blob], cleanName, {
-              type: 'image/jpeg',
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          },
-          'image/jpeg',
-          quality
-        );
-      };
-      img.onerror = () => resolve(file);
-    };
-    reader.onerror = () => resolve(file);
-  });
 };
 
 // ==================== Validation Logic ====================
@@ -138,7 +80,9 @@ const validateProject = ({ formData, coverImage, proposalPdf, galleryImages = []
 
   if (!proposalPdf) return 'Please upload a project proposal PDF.';
   if (proposalPdf.type !== 'application/pdf') return 'Proposal document must be a PDF file.';
-  if (proposalPdf.size > 10 * 1024 * 1024) return 'Proposal document must be 10MB or smaller.';
+  if (proposalPdf.size > 2.5 * 1024 * 1024) {
+    return `Proposal document must be under 2.5MB (selected file is ${(proposalPdf.size / (1024 * 1024)).toFixed(1)}MB). Please compress your PDF before uploading.`;
+  }
   // Validate gallery images
   if (galleryImages.length > 5) {
     return 'You can upload up to 5 photos.';
@@ -259,6 +203,17 @@ const CreateProject = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [pdfSizeWarning, setPdfSizeWarning] = useState('');
+
+  const handleProposalPdfChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setProposalPdf(file);
+    if (file && file.size > 1.5 * 1024 * 1024) {
+      setPdfSizeWarning(`Selected PDF is ${(file.size / (1024 * 1024)).toFixed(2)} MB. Recommended upload size is under 1.5 MB to avoid upload errors. If upload fails, please compress it via ilovepdf.com.`);
+    } else {
+      setPdfSizeWarning('');
+    }
+  };
 
 
 
@@ -278,6 +233,7 @@ const CreateProject = () => {
     setMessage({ type: '', text: '' });
     setShowSuccessModal(false);
     setSuccessMessage('');
+    setPdfSizeWarning('');
   };
 
   // Updates input text state dynamically from form change events
@@ -573,14 +529,20 @@ const CreateProject = () => {
                   <input
                     ref={proposalPdfInputRef}
                     type="file"
-                    accept=".pdf"
-                    onChange={(e) => setProposalPdf(e.target.files?.[0] || null)}
+                    accept=".pdf,application/pdf"
+                    onChange={handleProposalPdfChange}
                     required
                     className="w-full max-w-full rounded-lg border border-slate-300 p-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
                   />
                   <p className="mt-2 text-xs text-slate-500">
-                    Upload a project proposal PDF. Max size: 10MB.
+                    Upload a project proposal PDF. Recommended: under 1.5MB for fast processing.
                   </p>
+                  {pdfSizeWarning && (
+                    <div className="mt-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2 shadow-sm">
+                      <span className="text-sm leading-none">⚠️</span>
+                      <span className="font-medium leading-relaxed">{pdfSizeWarning}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>

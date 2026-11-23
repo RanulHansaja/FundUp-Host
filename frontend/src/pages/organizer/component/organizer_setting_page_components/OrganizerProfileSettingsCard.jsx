@@ -6,6 +6,7 @@ import { getUserProfile, updateUserProfile, uploadProfilePhoto, deleteProfilePho
 import ConfirmModal from '../../../common/component/ConfirmModal';
 // useAuth: context hook giving access to login/session variables
 import { useAuth } from '../../../../context/AuthContext';
+import { compressImage } from '../../../../utils/imageCompressor';
 
 // ==================== Organizer Profile Settings Card Component ====================
 const OrganizerProfileSettingsCard = () => {
@@ -77,13 +78,14 @@ const OrganizerProfileSettingsCard = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('profilePhoto', file);
-
     setUploadingPhoto(true);
     setMessage({ text: '', type: '' });
 
     try {
+      const optimized = await compressImage(file, 800, 0.85);
+      const formData = new FormData();
+      formData.append('profilePhoto', optimized);
+
       const response = await uploadProfilePhoto(formData);
       if (response.data.success) {
         const photoUrl = response.data.profilePhoto + "?v=" + Date.now();

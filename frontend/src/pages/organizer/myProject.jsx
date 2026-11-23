@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Sidebar from './component/sidebar';
 import { getOrganizerProjects, deleteProject, updateProject, createProgressUpdate } from '../../services/authService';
 import { Edit2, Trash2, BarChart3, Calendar, AlertCircle, X, ExternalLink } from 'lucide-react';
+import { compressImage, compressImages } from '../../utils/imageCompressor';
 
 // =========================================================================
 // CONSTANTS & UTILITIES
@@ -205,8 +206,8 @@ const MyProject = ({ user }) => {
       return 'Proposal document must be a PDF file.';
     }
     // 3. Check the file size
-    if (proposalPdf && proposalPdf.size > 10 * 1024 * 1024) {
-      return 'Proposal document must be 10MB or smaller.';
+    if (proposalPdf && proposalPdf.size > 2 * 1024 * 1024) {
+      return `Proposal document must be 2MB or smaller (selected file is ${(proposalPdf.size / (1024 * 1024)).toFixed(1)}MB). Please compress your PDF before uploading.`;
     }
 
     if (!project?.title?.trim()) {
@@ -257,8 +258,11 @@ const MyProject = ({ user }) => {
     if (!isLocalValidDate(project.startDate) || !isLocalValidDate(project.endDate)) {
       return 'Please enter valid start and end dates.';
     }
-    if (project.startDate < getLocalToday()) {
-      return 'Start date cannot be in the past.';
+    // Only enforce non-past start date if the user changed the start date
+    if (originalEditingProject && project.startDate !== originalEditingProject.startDate) {
+      if (project.startDate < getLocalToday()) {
+        return 'Start date cannot be in the past.';
+      }
     }
     if (project.endDate <= project.startDate) {
       return 'End date must be after the start date.';
@@ -533,8 +537,13 @@ const MyProject = ({ user }) => {
                   type="file"
                   accept=".pdf,application/pdf"
                   onChange={(e) => {
-                    setProposalPdf(e.target.files?.[0] || null);
-                    setUpdateError('');
+                    const file = e.target.files?.[0] || null;
+                    if (file && file.size > 2 * 1024 * 1024) {
+                      setUpdateError(`Selected PDF is ${(file.size / (1024 * 1024)).toFixed(1)}MB. To prevent upload failure, please choose a PDF under 2MB.`);
+                    } else {
+                      setUpdateError('');
+                    }
+                    setProposalPdf(file);
                     setUpdateSuccess('');
                   }}
                   className="flex-1 rounded-xl border border-slate-200 bg-white p-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
@@ -964,7 +973,12 @@ const MyProject = ({ user }) => {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) => { setPuPhotos(Array.from(e.target.files || [])); setPuMessage({ type: '', text: '' }); }}
+                    onChange={async (e) => {
+                      const raw = Array.from(e.target.files || []);
+                      const compressed = await compressImages(raw);
+                      setPuPhotos(compressed);
+                      setPuMessage({ type: '', text: '' });
+                    }}
                     className="w-full rounded-3xl border border-slate-300 bg-white p-3 text-sm outline-none file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                   />
                   <p className="mt-2 text-xs text-slate-500">

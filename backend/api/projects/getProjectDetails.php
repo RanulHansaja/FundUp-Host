@@ -4,7 +4,7 @@ header("Content-Type: application/json");
 
 include __DIR__ . "/../../config/db.php";
 
-$projectID = isset($_GET['projectID']) ? intval($_GET['projectID']) : 0;
+$projectID = isset($_GET['projectID']) ? intval($_GET['projectID']) : (isset($_GET['id']) ? intval($_GET['id']) : 0);
 
 if ($projectID <= 0) {
     echo json_encode([
