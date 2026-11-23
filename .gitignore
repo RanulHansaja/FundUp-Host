@@ -5,3 +5,6 @@ backend/uploads/**
 !backend/uploads/**/.gitkeep
 backend/vendor/
 backend/mail_debug.log
+
+# Ignore local database seeding scripts and credentials
+backend/database/scripts/

@@ -162,7 +162,7 @@ export default function DonateModal({ isOpen, onClose, project, onDonationSucces
             cancel_url: window.location.origin + "/projects/" + (project.projectID || project.id) + "?payment=cancel",
             notify_url: `${import.meta.env.VITE_BACKEND_URL || 'https://fundup-backend-cbfbh7d5gtdscxgg.southafricanorth-01.azurewebsites.net'}/api/donor/payhereNotify.php`,
             order_id: params.order_id,
-            items: params.projectTitle,
+            items: (params.projectTitle || "Campaign Donation").replace(/[\u2010-\u2015]/g, '-').replace(/[^\x20-\x7E]/g, '').substring(0, 50),
             amount: params.amount.toFixed(2),
             currency: params.currency,
             hash: params.hash,
